@@ -1,4 +1,4 @@
-module github.com/tranngoc769/test
+module github.com/tranngoc769/golang
 
 go 1.16
 
