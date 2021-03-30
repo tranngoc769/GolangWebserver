@@ -1,1 +1,1 @@
-web: currency
+web: golang
