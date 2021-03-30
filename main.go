@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -17,6 +18,10 @@ func main() {
 	r := mux.NewRouter()
 	bookrouter := r.PathPrefix("/books").Subrouter()
 	bookrouter.HandleFunc("/{title}/page/{page}", AllBooks)
-	fmt.Print("Running 8080\n")
-	http.ListenAndServe(":8080", r)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+	fmt.Print("Running :" + port + "\n")
+	http.ListenAndServe(":"+port, r)
 }
