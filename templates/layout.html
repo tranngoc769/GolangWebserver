@@ -1,17 +1,19 @@
-{{define "layout"}}
-<!doctype html>
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="/static/main.css">
+    <link rel="stylesheet" type="text/css" href="/statics/css/main.css">
 </head>
 
 <body>
-    <footer>
-        <h1> {{index .FavNums 2 }}</h1>
-    </footer>
+    <h1>{{.PageTitle}}</h1>
+    <ul>
+        {{range .Todos}} {{if .Done}}
+        <li class="done">{{.Title}}</li>
+        {{else}}
+        <li>{{.Title}}</li>
+        {{end}} {{end}}
+    </ul>
+
 </body>
 
 </html>
-{{end}}
