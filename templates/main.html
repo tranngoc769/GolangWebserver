@@ -156,8 +156,7 @@
                 <h1 class="lg:lg:text-2xl text-lg text-lg font-extrabold leading-none text-gray-900 tracking-tight mt-3"> Explore </h1>
                 <br>
                 <div class="grid lg:grid-cols-4 grid-cols-2 gap-2 hover:text-yellow-700 uk-link-reset">
-                    <!-- EACH -->
-                    {{range $Parent := .Graphql.User.EdgeOwnerToTimelineMedia.Edges}} {{$caption:= ""}} {{ if $Parent.Node.EdgeMediaToCaption.Edges}}{{range $Parent.Node.EdgeMediaToCaption.Edges }}{{$caption = .Node.Text}}{{end}}{{end}} {{ if $Parent.Node.EdgeSidecarToChildren.Edges}}
+                    <!-- EACH -->{{range $Parent := .Graphql.User.EdgeOwnerToTimelineMedia.Edges}} {{$caption:= ""}} {{ if $Parent.Node.EdgeMediaToCaption.Edges}}{{range $Parent.Node.EdgeMediaToCaption.Edges }}{{$caption = .Node.Text}}{{end}}{{end}} {{ if $Parent.Node.EdgeSidecarToChildren.Edges}}
                     {{range $Children := $Parent.Node.EdgeSidecarToChildren.Edges}}
                     <div>
                         <div class="bg-blue-400 max-w-full lg:h-64 h-40 rounded-md relative overflow-hidden shadow-sm">

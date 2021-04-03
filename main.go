@@ -15,14 +15,9 @@ import (
 	"github.com/tranngoc769/golang/model"
 )
 
-type Todo struct {
-	Title string
-	Done  bool
-}
-
-type TodoPageData struct {
-	PageTitle string
-	Todos     []Todo
+type Config struct {
+	Domain string `json:"host"`
+	Path   string `json:"path"`
 }
 
 func dateFormat(d int) string {
@@ -31,31 +26,32 @@ func dateFormat(d int) string {
 	layout := " 15:04:05 2006-01-02"
 	return t.Format(layout)
 }
-func AllBooks(w http.ResponseWriter, r *http.Request) {
+func LoadConfiguration(file string) Config {
+	var config Config
+	configFile, err := os.Open(file)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer configFile.Close()
+	jsonParser := json.NewDecoder(configFile)
+	jsonParser.Decode(&config)
+	return config
+}
+func Index(w http.ResponseWriter, r *http.Request) {
+	cfg := LoadConfiguration("config.json")
 	tmpl := template.Must(template.ParseFiles("templates/main.html"))
 
-	// vars := mux.Vars(r)
-	// title := vars["title"]
-	// page := vars["page"]
-	// data := TodoPageData{
-	// 	PageTitle: "My TODO list",
-	// 	Todos: []Todo{
-	// 		{Title: "Task 1", Done: false},
-	// 		{Title: "Task 2", Done: true},
-	// 		{Title: "Task 3", Done: true},
-	// 	},
-	// }
-	var instaModel model.Insta
-	instaModel, err := get_content("ngt.lngoc")
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		w.Write([]byte("Some error"))
+	vars := mux.Vars(r)
+	username := vars["username"]
+	if username == "" || username == "favicon.ico" {
+		username = "tranngoc769"
 	}
-
-	// fmt.Printf("%v\n", instaModel.Graphql.User.EdgeOwnerToTimelineMedia.Edges[0].Node)
-	// for i, v := range instaModel.Graphql.User.EdgeOwnerToTimelineMedia.Edges {
-	// 	fmt.Printf("%v - %v\n", i, v)
-	// }
+	var instaModel model.Insta
+	instaModel, err := get_content(username, cfg)
+	if err != nil {
+		w.Write([]byte("Not found " + username))
+		return
+	}
 	for i, node := range instaModel.Graphql.User.EdgeOwnerToTimelineMedia.Edges {
 		date_format := dateFormat(node.Node.TakenAtTimestamp)
 		instaModel.Graphql.User.EdgeOwnerToTimelineMedia.Edges[i].Node.TakenAt = date_format
@@ -64,12 +60,8 @@ func AllBooks(w http.ResponseWriter, r *http.Request) {
 }
 func main() {
 	r := NewRouter()
-	// fs := http.FileServer(http.Dir("statics/"))
-	// http.Handle("statics/", http.StripPrefix("statics/", fs))
-	bookrouter := r.PathPrefix("/").Subrouter()
-	bookrouter.HandleFunc("/", AllBooks)
-	bookrouter.HandleFunc("/xx", AllBooks)
-	// bookrouter.HandleFunc("/{title}/page/{page}", AllBooks)
+	router := r.PathPrefix("/").Subrouter()
+	router.HandleFunc("/{username}", Index)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "3000"
@@ -83,8 +75,8 @@ func NewRouter() *mux.Router {
 	router.PathPrefix(staticDir).Handler(http.StripPrefix(staticDir, http.FileServer(http.Dir("."+staticDir))))
 	return router
 }
-func get_content(username string) (model.Insta, error) {
-	url := "https://www.instagram.com/" + username + "/?__a=1"
+func get_content(username string, cfg Config) (model.Insta, error) {
+	url := cfg.Domain + username + cfg.Path
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return model.Insta{}, err
@@ -119,10 +111,6 @@ func get_content(username string) (model.Insta, error) {
 			return model.Insta{}, err
 		}
 		return msg, nil
-		// for i, _ := range msg.Graphql.User.EdgeOwnerToTimelineMedia.Edges {
-		// 	fmt.Printf("Results: %v\n", i)
-		// }
-		// fmt.Printf("Results: %v\n", msg.Graphql.User.EdgeOwnerToTimelineMedia.Edges)
 	}
 	return model.Insta{}, errors.New((string)(resp.StatusCode))
 }
