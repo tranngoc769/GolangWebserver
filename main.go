@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"text/template"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/prometheus/common/log"
@@ -24,26 +25,26 @@ type TodoPageData struct {
 	Todos     []Todo
 }
 
-type Test struct {
-	LoggingPageID         string `json:"logging_page_id"`
-	ShowSuggestedProfiles bool   `json:"show_suggested_profiles"`
-	ShowFollowDialog      bool   `json:"show_follow_dialog"`
+func dateFormat(d int) string {
+	intTime := int64(d)
+	t := time.Unix(intTime, 0)
+	layout := " 15:04:05 2006-01-02"
+	return t.Format(layout)
 }
-
 func AllBooks(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.ParseFiles("templates/main.html"))
 
 	// vars := mux.Vars(r)
 	// title := vars["title"]
 	// page := vars["page"]
-	data := TodoPageData{
-		PageTitle: "My TODO list",
-		Todos: []Todo{
-			{Title: "Task 1", Done: false},
-			{Title: "Task 2", Done: true},
-			{Title: "Task 3", Done: true},
-		},
-	}
+	// data := TodoPageData{
+	// 	PageTitle: "My TODO list",
+	// 	Todos: []Todo{
+	// 		{Title: "Task 1", Done: false},
+	// 		{Title: "Task 2", Done: true},
+	// 		{Title: "Task 3", Done: true},
+	// 	},
+	// }
 	var instaModel model.Insta
 	instaModel, err := get_content("ngt.lngoc")
 	if err != nil {
@@ -51,11 +52,15 @@ func AllBooks(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Some error"))
 	}
 
-	fmt.Printf("%v\n", instaModel.Graphql.User.EdgeOwnerToTimelineMedia.Edges[0].Node)
+	// fmt.Printf("%v\n", instaModel.Graphql.User.EdgeOwnerToTimelineMedia.Edges[0].Node)
 	// for i, v := range instaModel.Graphql.User.EdgeOwnerToTimelineMedia.Edges {
 	// 	fmt.Printf("%v - %v\n", i, v)
 	// }
-	tmpl.Execute(w, data)
+	for i, node := range instaModel.Graphql.User.EdgeOwnerToTimelineMedia.Edges {
+		date_format := dateFormat(node.Node.TakenAtTimestamp)
+		instaModel.Graphql.User.EdgeOwnerToTimelineMedia.Edges[i].Node.TakenAt = date_format
+	}
+	tmpl.Execute(w, instaModel)
 }
 func main() {
 	r := NewRouter()
@@ -91,8 +96,8 @@ func get_content(username string) (model.Insta, error) {
 	req.AddCookie(&http.Cookie{Name: "fbm_124024574287414", Value: "base_domain=.instagram.com"})
 	req.AddCookie(&http.Cookie{Name: "shbts", Value: "1616942700.529952"})
 	req.AddCookie(&http.Cookie{Name: "ds_user_id", Value: "6894997460"})
-	req.AddCookie(&http.Cookie{Name: "csrftoken", Value: "Pqt42EQ7tWpdR4qn4pdHFZJjopfx4bjo"})
-	req.AddCookie(&http.Cookie{Name: "sessionid", Value: "6894997460%3AazACKNMvI3ol5N%3A11"})
+	req.AddCookie(&http.Cookie{Name: "csrftoken", Value: "MTufVyiaobNx9Yp3StkTiak8flVMFpbU"})
+	req.AddCookie(&http.Cookie{Name: "sessionid", Value: "6894997460%3A3GFaUUXquhlDdN%3A23"})
 	req.AddCookie(&http.Cookie{Name: "rur", Value: "VLL"})
 	client := &http.Client{}
 	resp, err2 := client.Do(req)

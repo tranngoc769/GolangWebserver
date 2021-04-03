@@ -1,9 +1,11 @@
 package model
 
 type Insta struct {
+	Test                  func(int) string
 	LoggingPageID         string `json:"logging_page_id"`
 	ShowSuggestedProfiles bool   `json:"show_suggested_profiles"`
 	ShowFollowDialog      bool   `json:"show_follow_dialog"`
+	LenghtEdge            []int
 	Graphql               struct {
 		User struct {
 			Biography              string `json:"biography"`
@@ -102,6 +104,7 @@ type Insta struct {
 						} `json:"edge_media_to_comment"`
 						CommentsDisabled bool `json:"comments_disabled"`
 						TakenAtTimestamp int  `json:"taken_at_timestamp"`
+						TakenAt          string
 						EdgeLikedBy      struct {
 							Count int `json:"count"`
 						} `json:"edge_liked_by"`
