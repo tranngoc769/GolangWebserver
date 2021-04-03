@@ -14,21 +14,16 @@
         });
         $(document).on('click', "a[id='download_insta']", function() {
             $src = $(this).attr('src');
-            console.log($src);
-            var today = new Date();
-            var date = today.getFullYear() + '_' + (today.getMonth() + 1) + '_' + today.getDate();
-            var time = today.getHours() + "_" + today.getMinutes() + "_" + today.getSeconds();
-            var dateTime = date + '_' + time;
-            // 
             var link = document.createElement('a');
             link.href = $src;
             link.download = 'Download.jpg';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-
-
-
+        });
+        $(document).on('click', "#search_username", function() {
+            var value = $("#username").val();
+            window.location.replace("./" + value);
         });
     });
 

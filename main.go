@@ -44,7 +44,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	username := vars["username"]
 	if username == "" || username == "favicon.ico" {
-		username = "tranngoc769"
+		username = "tnquang769"
 	}
 	var instaModel model.Insta
 	instaModel, err := get_content(username, cfg)
@@ -62,6 +62,7 @@ func main() {
 	r := NewRouter()
 	router := r.PathPrefix("/").Subrouter()
 	router.HandleFunc("/{username}", Index)
+	router.HandleFunc("/", Index)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "3000"
